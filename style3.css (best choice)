@@ -1,0 +1,77 @@
+.chart-wrapper {
+	display: flex;
+	width: 100%;
+	max-width: 600px;
+	margin: auto;
+}
+/* Container cho các hook, nằm bên trái */
+.hook-container {
+	width: 60px;
+	position: relative;
+	height: 200px; /* tương ứng với tổng bar area height */
+}
+/* Mỗi hook-item được căn giữa theo chiều ngang */
+.hook-item {
+	position: absolute;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+.hook-guideline {
+	width: 100%;
+	border-top: 1px dashed #ccc;
+}
+.hook-label {
+	font-size: 12px;
+	margin-top: -10px; /* nâng label lên trên đường dashed */
+	text-align: center;
+}
+/* Container bên phải chứa biểu đồ và nhãn năm */
+.chart-content {
+	flex: 1;
+}
+/* Vùng biểu đồ dành cho cột */
+.chart-container {
+	position: relative;
+	height: 200px; /* Tổng chiều cao dành cho cột (extraSpacing + các segmentSpacing) */
+	background: #f9f9f9;
+	border-left: 1px solid #333;
+}
+/* Các cột biểu đồ */
+.chart-column {
+	position: absolute;
+	width: 50px;
+	bottom: 0;
+}
+.bar {
+	width: 50px;
+	background-color: #3498db;
+	position: absolute;
+	bottom: 0;
+}
+.value-label {
+	position: absolute;
+	bottom: 100%; /* đặt ngay trên đỉnh cột */
+	font-size: 12px;
+	text-align: center;
+	width: 50px;
+}
+/* Divider-line giữa biểu đồ và nhãn năm */
+.divider-line {
+	width: 100%;
+	height: 1px;
+	background-color: black;
+}
+/* Container chứa nhãn năm */
+.year-container {
+	position: relative;
+	height: 30px;
+	background: #fff;
+}
+.year-label {
+	position: absolute;
+	width: 50px;
+	text-align: center;
+	font-size: 12px;
+}

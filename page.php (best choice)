@@ -1,0 +1,29 @@
+<?php get_header(); ?>
+
+<?php
+// Dữ liệu mẫu
+$values = [120, 260, 300, 350]; // Giá trị (đơn vị giống với mốc)
+$years  = ['2020', '2021', '2022', '2023'];
+$hooks  = [200, 250, 300, 390];
+?>
+<main class="p-home">
+  <div class="chart-wrapper">
+    <!-- Container Hook bên trái -->
+    <div class="hook-container" id="hook-container"></div>
+    <!-- Container Chart Content bên phải -->
+    <div class="chart-content">
+      <div class="chart-container" id="chart"></div>
+      <div class="divider-line"></div>
+      <div class="year-container" id="year-container"></div>
+    </div>
+    <!-- Phần tử ẩn chứa dữ liệu từ PHP -->
+    <div id="chart-data"
+      data-values='<?= json_encode($values) ?>'
+      data-hooks='<?= json_encode($hooks) ?>'
+      data-years='<?= json_encode($years) ?>'
+      style="display: none;"></div>
+  </div>
+
+</main>
+
+<?php get_footer() ?>

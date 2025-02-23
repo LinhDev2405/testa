@@ -1,0 +1,115 @@
+	const getChartData = () => {
+		const $dataElem = $("#chart-data");
+		return {
+			values: $dataElem.data("values"),
+			hooks: $dataElem.data("hooks"),
+			years: $dataElem.data("years"),
+		};
+	};
+
+	/**
+	 * Tính chiều cao cột theo phân đoạn dựa trên các mốc cố định.
+	 * @param {number} value - Giá trị cần vẽ.
+	 * @param {Array<number>} hooksAsc - Mảng các mốc (theo thứ tự tăng dần).
+	 * @param {number} extraSpacing - Chiều cao dành cho mốc thấp nhất.
+	 * @param {number} segmentSpacing - Khoảng cách giữa các mốc.
+	 * @param {number} maxBarHeight - Chiều cao tối đa của cột nếu vượt mốc cuối.
+	 * @param {number} upperBoundDelta - Giá trị delta sau mốc cuối để nội suy chiều cao tối đa.
+	 * @returns {number} Chiều cao cột.
+	 */
+	const computeBarHeight = (
+		value,
+		hooksAsc,
+		extraSpacing,
+		segmentSpacing,
+		maxBarHeight,
+		upperBoundDelta
+	) => {
+		const baseMax = extraSpacing + (hooksAsc.length - 1) * segmentSpacing;
+		// Nếu value nhỏ hơn mốc thấp nhất:
+		if (value <= hooksAsc[0]) return (value / hooksAsc[0]) * extraSpacing;
+		// Nếu value nằm giữa các mốc:
+		for (let i = 0; i < hooksAsc.length - 1; i++) {
+			if (value <= hooksAsc[i + 1]) {
+				const baseHeight = extraSpacing + i * segmentSpacing;
+				const fraction = (value - hooksAsc[i]) / (hooksAsc[i + 1] - hooksAsc[i]);
+				return baseHeight + fraction * segmentSpacing;
+			}
+		}
+		// Nếu value vượt qua mốc cuối:
+		const lastHook = hooksAsc[hooksAsc.length - 1];
+		let extendedHeight;
+		if (value >= lastHook + upperBoundDelta) {
+			extendedHeight = maxBarHeight;
+		} else {
+			extendedHeight = baseMax + ((value - lastHook) / upperBoundDelta) * (maxBarHeight - baseMax);
+		}
+		return Math.min(extendedHeight, maxBarHeight);
+	};
+
+	const renderChart = () => {
+		const data = getChartData();
+		const values = data.values; // Ví dụ: [180, 260, 300, 330]
+		const hooks = data.hooks; // [200, 250, 300, 350] (thứ tự tăng dần)
+		const years = data.years;
+
+		// Các thông số scale (có thể điều chỉnh theo nhu cầu)
+		const offsetTop = 50; // Offset "dịch xuống" cho cả hook và cột
+		const extraSpacing = 30; // Chiều cao từ divider-line đến mốc thấp nhất
+		const segmentSpacing = 40; // Khoảng cách giữa các mốc
+		const maxBarHeight = 180; // Chiều cao tối đa của cột nếu vượt mốc cuối
+		const upperBoundDelta = 50; // Giá trị delta để nội suy chiều cao mở rộng
+		const colWidth = 50;
+		const colSpacing = 20;
+
+		// --- Render Hook Container ---
+		const $hookContainer = $("#hook-container").empty();
+		// Sắp xếp các mốc giảm dần để hiển thị (mốc cao nhất ở trên)
+		const sortedHooks = hooks.slice().sort((a, b) => b - a);
+		sortedHooks.forEach((hookVal, i) => {
+			const topPos = offsetTop + i * segmentSpacing;
+			const $hookItem = $('<div class="hook-item"></div>').css({ top: topPos + "px" });
+			const $hookGuideline = $('<div class="hook-guideline"></div>');
+			const $hookLabel = $('<div class="hook-label"></div>').text(hookVal);
+			$hookContainer.append($hookItem.append($hookGuideline, $hookLabel));
+		});
+
+		// --- Render Chart Columns ---
+		const $chart = $("#chart").empty();
+		values.forEach((val, index) => {
+			const leftPos = colSpacing / 2 + index * (colWidth + colSpacing);
+			const $col = $('<div class="chart-column"></div>').css({ left: leftPos + "px" });
+			// Tính chiều cao cột (dùng mảng hooks theo thứ tự tăng dần)
+			const barHeight = computeBarHeight(
+				val,
+				hooks,
+				extraSpacing,
+				segmentSpacing,
+				maxBarHeight,
+				upperBoundDelta
+			);
+			const $bar = $('<div class="bar"></div>').css({ height: barHeight + "px" });
+			const $valLabel = $('<div class="value-label"></div>')
+				.text(val)
+				.css({ bottom: barHeight + 2 + "px" });
+			$col.append($bar, $valLabel);
+			// Nếu đây là cột cuối cùng, thêm span hiển thị dòng chữ (lệch sang trái)
+			if (index === values.length - 1) {
+				const $extraSpan = $('<span class="extra-text">Dòng chữ</span>');
+				$col.append($extraSpan);
+			}
+			$chart.append($col);
+		});
+
+		// --- Render Year Container ---
+		const $yearContainer = $("#year-container").empty();
+		years.forEach((year, index) => {
+			const leftPos = colSpacing / 2 + index * (colWidth + colSpacing);
+			const $yearLabel = $('<div class="year-label"></div>')
+				.text(year)
+				.css({ left: leftPos + "px" });
+			$yearContainer.append($yearLabel);
+		});
+	};
+
+	renderChart();

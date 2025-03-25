@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * Tự động load tất cả các file PHP trong thư mục inc (bao gồm các thư mục con),
+ * ngoại trừ chính file load-inc.php để tránh vòng lặp.
+ */
+
+$stack = [__DIR__]; // Khởi tạo stack với thư mục "inc"
+
+while ($dir = array_pop($stack)) {
+  // Load tất cả các file PHP trong thư mục hiện tại
+  foreach (glob($dir . '/*.php') as $file) {
+    // Kiểm tra để tránh include chính file load-inc.php
+    if (realpath($file) !== realpath(__FILE__)) {
+      require_once $file;
+    }
+  }
+  // Thêm các thư mục con vào stack để duyệt đệ quy
+  foreach (glob($dir . '/*', GLOB_ONLYDIR) as $subdir) {
+    $stack[] = $subdir;
+  }
+}
+
+-----
+// Lấy đường dẫn đến thư mục theme
+$template_dir = get_template_directory();
+
+// Include file load-inc.php để tự động load các file PHP trong thư mục inc
+require_once $template_dir . '/inc/load-inc.php';
